@@ -1,4 +1,4 @@
-FROM centos:7
+FROM centos:7 AS builder
 
 ARG ARCUS_REPOSITORY=https://github.com/naver/arcus.git
 ARG MEMCACHED_REPOSITORY=https://github.com/naver/arcus-memcached.git
@@ -45,3 +45,17 @@ RUN set -ex; \
     make; \
     popd; \
     chown -R "$ARCUS_USER:$ARCUS_USER" "$MEMCACHED_DIR"
+
+FROM centos:7
+ENV ARCUS_USER    arcus
+ENV ARCUS_DIR     /arcus
+ENV ZOOKEEPER_DIR /arcus/zookeeper
+ENV MEMCACHED_DIR /arcus-memcached
+ENV PATH          $PATH:$ZOOKEEPER_DIR/bin:$MEMCACHED_DIR
+COPY --from=builder $ARCUS_DIR $ARCUS_DIR
+COPY --from=builder $MEMCACHED_DIR $MEMCACHED_DIR
+
+RUN adduser $ARCUS_USER; \
+chown -R "$ARCUS_USER:$ARCUS_USER" "$MEMCACHED_DIR"
+
+ENTRYPOINT ["/arcus-memcached/memcached"]
