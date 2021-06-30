@@ -29,11 +29,6 @@ ENV ARCUS_DIR     /arcus
 ENV ZOOKEEPER_DIR /arcus/zookeeper
 ENV MEMCACHED_DIR /arcus-memcached
 ENV PATH          $PATH:$ZOOKEEPER_DIR/bin:$MEMCACHED_DIR
-# zookeeper client 3.4 and 3.5 have different path 
-# if ARCUS_MEMCACHED_VERSION >= 1.13.1, you have to change client directory to
-# /zookeeper-client/zookeeper-client-c
-ENV ZK_VERSION arcus-3.4.6
-ENV ZK_CLIENT_PATH src/c
 
 RUN set -ex; \
     adduser "$ARCUS_USER"; \
@@ -41,9 +36,9 @@ RUN set -ex; \
     cd $ARCUS_DIR; \
     git submodule update --init; \
     cd $ZOOKEEPER_DIR; \
-    git checkout $ZK_VERSION; \
+    git checkout ${ZK_VERSION}; \
     ant compile_jute; \
-    cd $ZOOKEEPER_DIR/$ZK_CLIENT_PATH; \
+    cd $ZOOKEEPER_DIR/${ZK_CLIENT_PATH}; \
     autoreconf -if && ./configure --prefix=$ARCUS_DIR && make && make install; \
     cd $ARCUS_DIR/deps/libevent; \
     ./configure --prefix=$ARCUS_DIR && make && make install; \
