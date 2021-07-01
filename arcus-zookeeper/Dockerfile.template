@@ -2,17 +2,16 @@ FROM centos:7
 
 RUN yum update -y; \
     yum install -y \
-        java-1.8.0-openjdk-devel \
-        nc \
-        net-tools \
-        telnet \
-        nslookup
+    java-1.8.0-openjdk-devel \
+    nc \
+    net-tools \
+    telnet \
+    nslookup
 
-ARG ZOOKEEPER_FILE_NAME=apache-zookeeper-${ARCUS_ZOOKEEPER_VERSION}
+ARG ZOOKEEPER_FILE_NAME=apache-zookeeper-${ARCUS_ZOOKEEPER_VERSION}-bin
 ARG ZOOKEEPER_FILE_ARCHIVE=${ZOOKEEPER_FILE_NAME}.tar.gz
 ARG ZOOKEEPER_REPOSITORY=http://archive.apache.org/dist/zookeeper/zookeeper-${ARCUS_ZOOKEEPER_VERSION}/${ZOOKEEPER_FILE_ARCHIVE}
 
-ENV ZOOKEEPER_USER     zookeeper
 ENV ZOOKEEPER_VERSION  ${ARCUS_ZOOKEEPER_VERSION}
 ENV ZOOKEEPER_DIR      /${ZOOKEEPER_FILE_NAME}
 ENV ZOOKEEPER_DIR_DATA /data
@@ -21,10 +20,8 @@ ENV ZOOCFGDIR          ${ZOOKEEPER_DIR_CONF}
 ENV PATH               ${PATH}:${ZOOKEEPER_DIR}/bin
 
 RUN set -ex; \
-    adduser "${ZOOKEEPER_USER}"; \
     curl -O "${ZOOKEEPER_REPOSITORY}"; \
     tar -xzf "${ZOOKEEPER_FILE_ARCHIVE}"; \
-    chown -R "${ZOOKEEPER_USER}:${ZOOKEEPER_USER}" "${ZOOKEEPER_DIR}"; \
     rm -f "${ZOOKEEPER_FILE_ARCHIVE}";
 
 WORKDIR ${ZOOKEEPER_DIR}
