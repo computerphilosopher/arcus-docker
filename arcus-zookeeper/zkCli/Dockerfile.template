@@ -1,0 +1,5 @@
+FROM zookeeper:3.5.9
+#ENTRYPOINT ["/apache-zookeeper-3.5.9-bin/bin/zkCli.sh"]
+COPY entrypoint.sh .
+RUN chmod +x ./entrypoint.sh
+ENTRYPOINT ["./entrypoint.sh"]

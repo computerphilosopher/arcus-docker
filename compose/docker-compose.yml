@@ -1,0 +1,77 @@
+version: '3.1'
+
+services:
+  zoo1:
+    image: zookeeper:3.5.9
+    restart: always
+    hostname: zoo1
+    ports:
+      - 2181:2181
+    environment:
+      ZOO_MY_ID: 1
+      ZOO_SERVERS: server.1=0.0.0.0:2888:3888;2181 server.2=zoo2:2888:3888;2181 server.3=zoo3:2888:3888;2181
+
+  zoo2:
+    image: zookeeper:3.5.9
+    restart: always
+    hostname: zoo2
+    ports:
+      - 2182:2181
+    environment:
+      ZOO_MY_ID: 2
+      ZOO_SERVERS: server.1=zoo1:2888:3888;2181 server.2=0.0.0.0:2888:3888;2181 server.3=zoo3:2888:3888;2181
+
+  zoo3:
+    image: zookeeper:3.5.9
+    restart: always
+    hostname: zoo3
+    ports:
+      - 2183:2181
+    environment:
+      ZOO_MY_ID: 3
+      ZOO_SERVERS: server.1=zoo1:2888:3888;2181 server.2=zoo2:2888:3888;2181 server.3=0.0.0.0:2888:3888;2181
+
+  register:
+    image: jam2in/zkcli:3.5.9
+    restart: on-failure
+    hostname: zkcli
+    ports:
+      - 2184:2181
+    depends_on:
+      - zoo1
+      - zoo2
+      - zoo3
+    environment:
+      ZK_ENSEMBLE: zoo1:2181,zoo2:2181,zoo3:2181
+      SERVICE_CODE: test
+      CACHENODES: cache1:11211,cache2:11211,cache3:11211
+
+  cache1:
+    image: jam2in/arcus-memcached:multistage
+    restart: always
+    hostname: cache1
+    depends_on:
+      - register
+    ports:
+      - 11211:11211
+    command: "-u arcus -E /arcus-memcached/.libs/default_engine.so -X /arcus-memcached/.libs/ascii_scrub.so -v -r -R100 -U 0 -D: -b 8192 -m 100 -p 11211 -c 3000 -t 6 -z zoo1:2181,zoo2:2181,zoo3:2181"
+
+  cache2:
+    image: jam2in/arcus-memcached:multistage
+    restart: always
+    hostname: cache2
+    ports:
+      - 11212:11211
+    depends_on:
+      - cache1
+    command: "-u arcus -E /arcus-memcached/.libs/default_engine.so -X /arcus-memcached/.libs/ascii_scrub.so -v -r -R100 -U 0 -D: -b 8192 -m 100 -p 11211 -c 3000 -t 6 -z zoo1:2181,zoo2:2181,zoo3:2181"   
+
+  cache3:
+    image: jam2in/arcus-memcached:multistage
+    restart: always
+    hostname: cache3
+    ports:
+      - 11213:11211
+    depends_on:
+      - cache2
+    command: "-u arcus -E /arcus-memcached/.libs/default_engine.so -X /arcus-memcached/.libs/ascii_scrub.so -v -r -R100 -U 0 -D: -b 8192 -m 100 -p 11211 -c 3000 -t 6 -z zoo1:2181,zoo2:2181,zoo3:2181"   
