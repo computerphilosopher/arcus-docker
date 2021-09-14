@@ -1,0 +1,1 @@
+{"rsync":{"/vagrant":{"type":"rsync","guestpath":"/vagrant","hostpath":"/Users/skynet/arcus-docker/vagrant/arcus-memcached","disabled":false,"__vagrantfile":true,"owner":"vagrant","group":"vagrant"}}}

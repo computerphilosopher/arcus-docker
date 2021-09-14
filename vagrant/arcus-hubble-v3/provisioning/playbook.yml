@@ -21,7 +21,23 @@
           - which
           - git 
           - openssl-devel
+          - wget
         state: present
     - name: install arcus
       become: yes
       script: "{{ playbook_dir }}/install-arcus.sh"
+    - name: install grafana
+      become: yes
+      script: "{{ playbook_dir }}/install-grafana.sh"
+  roles:
+    - role: gantsign.golang
+      golang_verison: '1.16.8'
+    - role: undergreen.prometheus-node-exporter
+      become: yes
+      prometheus_node_exporter_version: 1.2.2
+      prometheus_node_exporter_enabled_collector:
+        - processes 
+        - tcpstat
+      prometheus_node_exporter_config_flags:
+        'web.listen-address': '0.0.0.0:9100'
+        'log.level': 'info'

@@ -12,10 +12,12 @@ Vagrant.configure("2") do |config|
     memc01.vm.network "public_network", bridge: "en0"
     memc01.vm.hostname = "memc01"
     memc01.vm.network "forwarded_port", guest: 2181, host: 2181
+    memc01.vm.network "forwarded_port", guest: 3000, host: 3000 
     memc01.vm.network "forwarded_port", guest: 11211, host: 11211
     memc01.vm.network "forwarded_port", guest: 11215, host: 11215
     memc01.vm.network "forwarded_port", guest: 11216, host: 11216
     memc01.vm.network "forwarded_port", guest: 11217, host: 11217
+    memc01.vm.network "forwarded_port", guest: 9100, host: 9100
   end
 
   config.vm.provision :ansible do |ansible|
